@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="pl" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Językowy: Zaimki Wskazujące</title>
+    <style>
+        /* --- Root Variables for Theming --- */
+        :root {
+            --bg-color-light: #f4f4f9;
+            --text-color-light: #2c3e50;
+            --card-bg-light: #ffffff;
+            --accent-color-light: #3498db;
+            --accent-hover-light: #2980b9;
+            --correct-light: #2ecc71;
+            --incorrect-light: #e74c3c;
+            --neutral-light: #bdc3c7;
+
+            --bg-color-dark: #2c3e50;
+            --text-color-dark: #ecf0f1;
+            --card-bg-dark: #34495e;
+            --accent-color-dark: #5dade2;
+            --accent-hover-dark: #85c1e9;
+            --correct-dark: #27ae60;
+            --incorrect-dark: #c0392b;
+            --neutral-dark: #7f8c8d;
+        }
+
+        /* --- Assigning Variables based on Theme --- */
+        html[data-theme='light'] {
+            --bg-color: var(--bg-color-light);
+            --text-color: var(--text-color-light);
+            --card-bg: var(--card-bg-light);
+            --accent-color: var(--accent-color-light);
+            --accent-hover: var(--accent-hover-light);
+            --correct-bg: var(--correct-light);
+            --incorrect-bg: var(--incorrect-light);
+            --neutral-bg: var(--neutral-light);
+            --btn-text-color: #fff;
+        }
+
+        html[data-theme='dark'] {
+            --bg-color: var(--bg-color-dark);
+            --text-color: var(--text-color-dark);
+            --card-bg: var(--card-bg-dark);
+            --accent-color: var(--accent-color-dark);
+            --accent-hover: var(--accent-hover-dark);
+            --correct-bg: var(--correct-dark);
+            --incorrect-bg: var(--incorrect-dark);
+            --neutral-bg: var(--neutral-dark);
+            --btn-text-color: #fff;
+        }
+        
+        /* --- General Styles --- */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .container {
+            background-color: var(--card-bg);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 600px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        /* --- Theme Toggle Switch --- */
+        .theme-switch-wrapper {
+            display: flex;
+            align-items: center;
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            z-index: 10;
+        }
+        
+        .theme-switch {
+            display: inline-block;
+            height: 24px;
+            position: relative;
+            width: 50px;
+        }
+
+        .theme-switch input {
+            display:none;
+        }
+        
+        .slider {
+            background-color: var(--neutral-bg);
+            bottom: 0;
+            cursor: pointer;
+            left: 0;
+            position: absolute;
+            right: 0;
+            top: 0;
+            transition: .4s;
+            border-radius: 34px;
+        }
+
+        .slider:before {
+            background-color: #fff;
+            bottom: 3px;
+            content: "";
+            height: 18px;
+            left: 4px;
+            position: absolute;
+            transition: .4s;
+            width: 18px;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: var(--accent-color);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+        
+        .quiz-header {
+            padding: 40px 40px 20px;
+            text-align: center;
+        }
+
+        h1 {
+            margin-bottom: 10px;
+        }
+        
+        .progress-container {
+            width: 100%;
+            background-color: var(--neutral-bg);
+            height: 8px;
+            border-radius: 4px;
+            margin: 20px auto;
+        }
+        
+        #progress-bar {
+            height: 100%;
+            width: 0%;
+            background-color: var(--accent-color);
+            border-radius: 4px;
+            transition: width 0.4s ease;
+        }
+        
+        .quiz-body {
+            padding: 20px 40px;
+        }
+
+        #question-text {
+            font-size: 1.4em;
+            margin-bottom: 30px;
+            line-height: 1.5;
+            min-height: 80px; /* To prevent layout shift */
+        }
+        
+        .options-list {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .option {
+            background-color: var(--bg-color);
+            border: 2px solid transparent;
+            border-radius: 10px;
+            padding: 15px 20px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+            font-size: 1.1em;
+            display: block;
+        }
+        
+        .option:hover {
+            border-color: var(--accent-color);
+        }
+        
+        .option.correct {
+            background-color: var(--correct-bg);
+            color: var(--btn-text-color);
+            border-color: var(--correct-bg);
+        }
+
+        .option.incorrect {
+            background-color: var(--incorrect-bg);
+            color: var(--btn-text-color);
+            border-color: var(--incorrect-bg);
+        }
+        
+        .option.disabled {
+            pointer-events: none;
+        }
+
+        #results-screen {
+            display: none;
+            padding: 40px;
+            text-align: center;
+        }
+
+        #results-screen h2 {
+            margin-bottom: 20px;
+            font-size: 2em;
+        }
+
+        #score-text {
+            font-size: 1.5em;
+            margin-bottom: 30px;
+        }
+        
+        .btn {
+            background-color: var(--accent-color);
+            color: var(--btn-text-color);
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.1em;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .btn:hover {
+            background-color: var(--accent-hover);
+        }
+        
+        #review-btn {
+            margin-right: 10px;
+        }
+
+        #review-screen {
+            display: none;
+            padding: 20px 40px;
+        }
+        
+        #review-screen h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .review-item {
+            background-color: var(--bg-color);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+        }
+
+        .review-item p {
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+
+        .review-item .user-answer.correct {
+            color: var(--correct-bg);
+        }
+        
+        .review-item .user-answer.incorrect {
+            color: var(--incorrect-bg);
+        }
+
+        .review-item .correct-answer {
+            color: var(--correct-bg);
+        }
+
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="theme-switch-wrapper">
+            <label class="theme-switch" for="checkbox">
+                <input type="checkbox" id="checkbox" />
+                <div class="slider round"></div>
+            </label>
+        </div>
+        
+        <div id="quiz-screen">
+            <div class="quiz-header">
+                <h1>Quiz: Zaimki Wskazujące</h1>
+                <p id="question-counter"></p>
+                <div class="progress-container">
+                    <div id="progress-bar"></div>
+                </div>
+            </div>
+            <div class="quiz-body">
+                <h2 id="question-text"></h2>
+                <ul id="options-container" class="options-list">
+                    </ul>
+            </div>
+        </div>
+        
+        <div id="results-screen">
+            <h2>Quiz Zakończony!</h2>
+            <p id="score-text">Twój wynik: 0/0</p>
+            <button id="review-btn" class="btn">Przeglądaj odpowiedzi</button>
+            <button id="restart-btn" class="btn">Rozwiąż ponownie</button>
+        </div>
+
+        <div id="review-screen">
+            <h2>Przegląd odpowiedzi</h2>
+            <div id="review-container"></div>
+            <div style="text-align: center; margin-top: 20px;">
+                <button id="restart-from-review-btn" class="btn">Rozwiąż ponownie</button>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        const quizData = [
+            { question: "Nikt już nie chce siedzieć przy stoliku z ______ państwem. To straszni plotkarze!", options: ["tymi", "temu", "tym"], answer: "tymi" },
+            { question: "Rozmawialiśmy właśnie o ______ państwu – wyglądają na cudzoziemców.", options: ["tych", "temu", "tym"], answer: "tych" },
+            { question: "Radzę ci – nie zapraszaj do siebie ______ państwa. Są bardzo niegrzeczni.", options: ["tych", "temu", "tego"], answer: "tych" },
+            { question: "Powiedz ______ państwu, żeby dziś wieczorem poszli do kina.", options: ["tym", "temu", "tych"], answer: "tym" },
+            { question: "Większość krajów wprowadziła embargo na komputery produkowane przez ______ państwo.", options: ["tych", "to", "ci"], answer: "to" },
+            { question: "Niewiele wiem o ______ państwie.", options: ["tym", "temu", "tych"], answer: "tym" },
+            { question: "Nie chciałabym pojechać do ______ państwa.", options: ["tych", "tego", "to"], answer: "tego" },
+            { question: "Nasz kraj pomaga ______ państwom, które potrzebują pomocy.", options: ["tym", "tych", "temu"], answer: "tym" },
+            { question: "Proszę powiedzieć ______ państwu, że stolik jest już wolny.", options: ["tym", "temu", "tego"], answer: "tym" },
+            { question: "Gdzie ______ państwo zostawili bagaże?", options: ["ci", "to", "tamto"], answer: "ci" },
+            { question: "______ państwo leży nad morzem.", options: ["To", "Ci", "Tamto"], answer: "To" },
+            { question: "______ państwa leżą w Afryce.", options: ["Te", "Ci", "Tych"], answer: "Te" },
+            { question: "______ państwu potrzebna jest szybka pomoc gospodarcza.", options: ["Temu", "Tym", "Tego"], answer: "Temu" },
+            { question: "Czytaliście o ______ starszych państwu, którzy napadli na bank?", options: ["tych", "tym", "temu"], answer: "tych" },
+            { question: "Teraz żadne mocarstwo nie chce utrzymywać stosunków dyplomatycznych z ______ państwami.", options: ["tymi", "tych", "tym"], answer: "tymi" },
+            { question: "Nie ma tu ______ państwa, którzy mnie szukali?", options: ["tych", "tego", "tym"], answer: "tych" },
+            { question: "Jedziemy do ______ państwa, które ma ciepły klimat.", options: ["tego", "tych", "temu"], answer: "tego" },
+            { question: "Czy ______ państwo już wiedzą, że samolot ma awarię?", options: ["ci", "to", "tamto"], answer: "ci" },
+            { question: "O ______ państwie ostatnio dużo pisze się w gazetach.", options: ["tym", "temu", "tego"], answer: "tym" },
+            { question: "______ państwa zgłosiły już swój udział w Olimpiadzie.", options: ["Te", "Ci", "Tych"], answer: "Te" },
+            { question: "Moi rodzice obiecali pomóc ______ państwu, których poznali u znajomych.", options: ["tym", "temu", "tych"], answer: "tym" },
+        ];
+
+        // --- DOM Elements ---
+        const questionTextEl = document.getElementById('question-text');
+        const optionsContainerEl = document.getElementById('options-container');
+        const questionCounterEl = document.getElementById('question-counter');
+        const progressBarEl = document.getElementById('progress-bar');
+        
+        const quizScreenEl = document.getElementById('quiz-screen');
+        const resultsScreenEl = document.getElementById('results-screen');
+        const reviewScreenEl = document.getElementById('review-screen');
+        
+        const scoreTextEl = document.getElementById('score-text');
+        const restartBtn = document.getElementById('restart-btn');
+        const reviewBtn = document.getElementById('review-btn');
+        const restartFromReviewBtn = document.getElementById('restart-from-review-btn');
+        const reviewContainerEl = document.getElementById('review-container');
+
+
+        // --- State Variables ---
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let userAnswers = [];
+
+        function startQuiz() {
+            currentQuestionIndex = 0;
+            score = 0;
+            userAnswers = [];
+            resultsScreenEl.style.display = 'none';
+            reviewScreenEl.style.display = 'none';
+            quizScreenEl.style.display = 'block';
+            showQuestion();
+        }
+
+        function showQuestion() {
+            const currentQuestion = quizData[currentQuestionIndex];
+            
+            // Update progress
+            questionCounterEl.textContent = `Pytanie ${currentQuestionIndex + 1} z ${quizData.length}`;
+            progressBarEl.style.width = `${((currentQuestionIndex + 1) / quizData.length) * 100}%`;
+            
+            questionTextEl.textContent = currentQuestion.question;
+            optionsContainerEl.innerHTML = '';
+
+            currentQuestion.options.forEach(option => {
+                const li = document.createElement('li');
+                li.textContent = option;
+                li.classList.add('option');
+                li.addEventListener('click', () => selectAnswer(li, option, currentQuestion.answer));
+                optionsContainerEl.appendChild(li);
+            });
+        }
+
+        function selectAnswer(selectedLi, selectedOption, correctAnswer) {
+            const isCorrect = selectedOption === correctAnswer;
+            userAnswers.push({
+                question: quizData[currentQuestionIndex].question,
+                selected: selectedOption,
+                correct: correctAnswer,
+                isCorrect: isCorrect
+            });
+            
+            if (isCorrect) {
+                score++;
+                selectedLi.classList.add('correct');
+            } else {
+                selectedLi.classList.add('incorrect');
+                // Highlight the correct answer
+                Array.from(optionsContainerEl.children).forEach(li => {
+                    if (li.textContent === correctAnswer) {
+                        li.classList.add('correct');
+                    }
+                });
+            }
+            
+            // Disable all options after selection
+            Array.from(optionsContainerEl.children).forEach(li => {
+                li.classList.add('disabled');
+            });
+
+            // Move to the next question automatically after a short delay
+            setTimeout(() => {
+                currentQuestionIndex++;
+                if (currentQuestionIndex < quizData.length) {
+                    showQuestion();
+                } else {
+                    showResults();
+                }
+            }, 1200);
+        }
+
+        function showResults() {
+            quizScreenEl.style.display = 'none';
+            resultsScreenEl.style.display = 'block';
+            scoreTextEl.textContent = `Twój wynik: ${score} / ${quizData.length}`;
+        }
+        
+        function showReview() {
+            resultsScreenEl.style.display = 'none';
+            reviewScreenEl.style.display = 'block';
+            reviewContainerEl.innerHTML = '';
+            
+            userAnswers.forEach((answer, index) => {
+                const reviewItem = document.createElement('div');
+                reviewItem.classList.add('review-item');
+                
+                const questionP = document.createElement('p');
+                questionP.innerHTML = `<strong>Pytanie ${index + 1}:</strong> ${answer.question.replace('______', `<strong><u>...</u></strong>`)}`;
+
+                const userAnswerP = document.createElement('p');
+                const userAnswerClass = answer.isCorrect ? 'correct' : 'incorrect';
+                userAnswerP.innerHTML = `Twoja odpowiedź: <span class="user-answer ${userAnswerClass}">${answer.selected}</span>`;
+                
+                reviewItem.appendChild(questionP);
+                reviewItem.appendChild(userAnswerP);
+
+                if (!answer.isCorrect) {
+                    const correctAnswerP = document.createElement('p');
+                    correctAnswerP.innerHTML = `Poprawna odpowiedź: <span class="correct-answer">${answer.correct}</span>`;
+                    reviewItem.appendChild(correctAnswerP);
+                }
+
+                reviewContainerEl.appendChild(reviewItem);
+            });
+        }
+
+
+        // --- Event Listeners ---
+        restartBtn.addEventListener('click', startQuiz);
+        restartFromReviewBtn.addEventListener('click', startQuiz);
+        reviewBtn.addEventListener('click', showReview);
+        
+        // --- Theme Toggler ---
+        const themeToggle = document.getElementById('checkbox');
+        const currentTheme = localStorage.getItem('theme');
+
+        if (currentTheme) {
+            document.documentElement.setAttribute('data-theme', currentTheme);
+            if (currentTheme === 'light') {
+                themeToggle.checked = true;
+            }
+        }
+
+        function switchTheme(e) {
+            if (e.target.checked) {
+                document.documentElement.setAttribute('data-theme', 'light');
+                localStorage.setItem('theme', 'light');
+            } else {
+                document.documentElement.setAttribute('data-theme', 'dark');
+                localStorage.setItem('theme', 'dark');
+            }
+        }
+
+        themeToggle.addEventListener('change', switchTheme, false);
+
+        // --- Initial Start ---
+        startQuiz();
+
+    </script>
+</body>
+</html>
